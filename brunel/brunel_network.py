@@ -175,7 +175,12 @@ class BrunelNetwork:
         # network respond to the random spikes from the external population.
         # We create one recorder for each neuron population (excitatory and
         # inhibitory).
+        '''
         self._spikes = nest.Create("spike_detector", 2,
+                                   [{"label": 'brunel-py-ex'},
+                                    {"label": 'brunel-py-in'}])
+        '''
+        self._spikes = nest.Create("spike_recorder", 2,
                                    [{"label": 'brunel-py-ex'},
                                     {"label": 'brunel-py-in'}])
         self._espikes = self._spikes[:1]
@@ -279,7 +284,10 @@ class BrunelNetwork:
 
         nest.SetKernelStatus({"resolution": dt,
                               "print_time": print_time,
-                              "local_num_threads": threads})
+                              # "local_num_threads": threads,
+                              "total_num_virtual_procs": 1
+                              }
+                             )
 
         # calibrate/compute network parameters
         self._calibrate()
@@ -297,31 +305,31 @@ class BrunelNetwork:
         ex_spikes = np.stack((ex_events['senders'], ex_events['times'])).T
         in_spikes = np.stack((in_events['senders'], in_events['times'])).T
 
-    @property
+    @ property
     def t_stop(self):
         return self._T
 
-    @property
+    @ property
     def n_neurons_exc(self):
         return self._NE
 
-    @property
+    @ property
     def n_neurons_inh(self):
         return self._NI
 
-    @property
+    @ property
     def n_neurons(self):
         return self._N_neurons
 
-    @property
+    @ property
     def n_synapses_exc(self):
         return nest.GetDefaults("excitatory")["num_connections"]
 
-    @property
+    @ property
     def n_synapses_inh(self):
         return nest.GetDefaults("inhibitory")["num_connections"]
 
-    @property
+    @ property
     def n_synapses(self):
         return self.n_synapses_exc + self.n_synapses_inh
 
@@ -363,12 +371,12 @@ class BrunelNetwork:
 
         return neo_spiketrains
 
-    @property
+    @ property
     def spiketrains_exc(self):
         events = nest.GetStatus(self._espikes, 'events')[0]
         return self._neo_spiketrains(self._nodes_ex, events, "exc")
 
-    @property
+    @ property
     def spiketrains_inh(self):
         events = nest.GetStatus(self._ispikes, 'events')[0]
         return self._neo_spiketrains(self._nodes_in, events, "inh")
@@ -385,34 +393,34 @@ class BrunelNetwork:
             raise ValueError(msg)
 
     # Get and set model parameters
-    @property
+    @ property
     def eta(self):
         return self._eta
 
-    @eta.setter
+    @ eta.setter
     def eta(self, eta):
         self._eta = eta
 
-    @property
+    @ property
     def g(self):
         return self._g
 
-    @g.setter
+    @ g.setter
     def g(self, g):
         self._g = g
 
-    @property
+    @ property
     def J(self):
         return self._J
 
-    @J.setter
+    @ J.setter
     def J(self, J):
         self._J = J
 
-    @property
+    @ property
     def D(self):
         return self._D
 
-    @D.setter
+    @ D.setter
     def D(self, D):
         self._D = D
